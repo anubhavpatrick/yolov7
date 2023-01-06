@@ -36,7 +36,8 @@ def detect(save_img=False):
     imgsz = check_img_size(imgsz, s=stride)  # check img_size
 
     if trace:
-        model = TracedModel(model, device, opt.img_size)
+        #model = TracedModel(model, device, opt.img_size)
+        pass
 
     if half:
         model.half()  # to FP16
@@ -59,13 +60,13 @@ def detect(save_img=False):
     # Get names and colors
     names = model.module.names if hasattr(model, 'module') else model.names
     colors = [[random.randint(0, 255) for _ in range(3)] for _ in names]
-
+    
     # Run inference
     if device.type != 'cpu':
         model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
     old_img_w = old_img_h = imgsz
     old_img_b = 1
-
+    
     t0 = time.time()
     for path, img, im0s, vid_cap in dataset:
         img = torch.from_numpy(img).to(device)
@@ -81,7 +82,7 @@ def detect(save_img=False):
             old_img_w = img.shape[3]
             for i in range(3):
                 model(img, augment=opt.augment)[0]
-
+        
         # Inference
         t1 = time_synchronized()
         with torch.no_grad():   # Calculating gradients would cause a GPU memory leak
@@ -91,11 +92,11 @@ def detect(save_img=False):
         # Apply NMS
         pred = non_max_suppression(pred, opt.conf_thres, opt.iou_thres, classes=opt.classes, agnostic=opt.agnostic_nms)
         t3 = time_synchronized()
-
+        
         # Apply Classifier
         if classify:
             pred = apply_classifier(pred, modelc, img, im0s)
-
+            
         # Process detections
         for i, det in enumerate(pred):  # detections per image
             if webcam:  # batch_size >= 1
@@ -126,7 +127,7 @@ def detect(save_img=False):
 
                     if save_img or view_img:  # Add bbox to image
                         label = f'{names[int(cls)]} {conf:.2f}'
-                        plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=1)
+                        plot_one_box(xyxy, im0, label=label, color=colors[int(cls)], line_thickness=5)
 
             # Print time (inference + NMS)
             print(f'{s}Done. ({(1E3 * (t2 - t1)):.1f}ms) Inference, ({(1E3 * (t3 - t2)):.1f}ms) NMS')
