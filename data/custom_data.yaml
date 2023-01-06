@@ -1,0 +1,13 @@
+train: /workspace/yolov7/custom_dataset/train/images
+val: /workspace/yolov7/custom_dataset/valid/images
+test: /workspace/yolov7/custom_dataset/test/images
+
+nc: 3
+names: ['helmet', 'jacket', 'person']
+
+roboflow:
+  workspace: abesit-3rd-year-team-2
+  project: helmet-jacket-person-detection-2
+  version: 1
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/abesit-3rd-year-team-2/helmet-jacket-person-detection-2/dataset/1
