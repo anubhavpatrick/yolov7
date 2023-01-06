@@ -140,7 +140,6 @@ class LoadImages:  # for inference
         images = [x for x in files if x.split('.')[-1].lower() in img_formats]
         videos = [x for x in files if x.split('.')[-1].lower() in vid_formats]
         ni, nv = len(images), len(videos)
-
         self.img_size = img_size
         self.stride = stride
         self.files = images + videos
@@ -199,6 +198,7 @@ class LoadImages:  # for inference
     def new_video(self, path):
         self.frame = 0
         self.cap = cv2.VideoCapture(path)
+        ret_val, img0 = self.cap.read()
         self.nframes = int(self.cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
     def __len__(self):
