@@ -264,3 +264,12 @@ fabric.properties
 
 # Exclude virtualenv
 virtual_env/
+
+#ignore dataset
+custom_dataset/
+
+#ignore client secrets
+client_secrets.json
+
+#ignore token.json
+token.json

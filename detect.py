@@ -1,4 +1,5 @@
 import argparse
+import threading
 import time
 from pathlib import Path
 
@@ -13,6 +14,36 @@ from utils.general import check_img_size, check_requirements, check_imshow, non_
     scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path
 from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
+
+#send mail alert
+from send_mail import prepare_and_send_email
+
+#Global Variable
+is_email_allowed = True #True if email is allowed to be sent
+
+
+def toggle_email_allowed():
+    '''This function will toggle the global variable is_email_allowed to False for 10 minutes and then True'''
+    global is_email_allowed
+    is_email_allowed = False
+    #sleep for 10 minutes
+    time.sleep(600)
+    is_email_allowed = True
+
+
+def violation_alert_generator(im0, receipient='anubhav.patrick@giindia.com', subject='PPE Violation Detected at ABESIT', message_text='This is a test email. A PPE violation is detected'):
+    '''This function will send an email with attached alert image 
+    
+    Parameters:
+    im0 (numpy.ndarray): The image to be attached in the email
+
+    Returns:
+    None
+    '''
+    prepare_and_send_email(receipient, subject, message_text, im0)
+    #start a thread to toggle the global variable is_email_allowed to False for 10 minutes
+    t = threading.Thread(target=toggle_email_allowed)
+    t.start()
 
 
 def detect(save_img=False):
@@ -51,7 +82,8 @@ def detect(save_img=False):
     # Set Dataloader
     vid_path, vid_writer = None, None
     if webcam:
-        view_img = check_imshow()
+        #uncomment below line to show webcam output using cv2
+        #view_img = check_imshow()
         cudnn.benchmark = True  # set True to speed up constant image size inference
         dataset = LoadStreams(source, img_size=imgsz, stride=stride)
     else:
@@ -67,8 +99,14 @@ def detect(save_img=False):
     old_img_w = old_img_h = imgsz
     old_img_b = 1
     
+    violation_frames = 0 # Number of frames with violation
+    
+    # Declare global variable is_email_allowed
+    global is_email_allowed
+
     t0 = time.time()
     for path, img, im0s, vid_cap in dataset:
+
         img = torch.from_numpy(img).to(device)
         img = img.half() if half else img.float()  # uint8 to fp16/32
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
@@ -112,10 +150,33 @@ def detect(save_img=False):
                 # Rescale boxes from img_size to im0 size
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
 
-                # Print results
+                unsafe = False # Flag to indicate if the frame is unsafe
+
                 for c in det[:, -1].unique():
+
                     n = (det[:, -1] == c).sum()  # detections per class
-                    s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
+                    c = int(c)
+
+                    #we need to make sure at there is violation in atleast 5 continous frames
+                    # Check if the frame is unsafe
+                    if unsafe == False and (c == 0 or c == 1 or c == 3) and n > 0:
+                        unsafe = True
+
+                    s += f"{n} {names[c]}{'s' * (n > 1)}, "  # add to string
+                
+                #code to send email on continous violations
+                if unsafe == True:
+                    violation_frames += 1
+                    if violation_frames >= 5 and is_email_allowed == True:
+                        # reset the violation_frames since violation is detected
+                        violation_frames = 0
+                        # create a thread for sending email
+                        t = threading.Thread(target=violation_alert_generator, args=(im0,))
+                        t.start()
+                elif unsafe == False:
+                    # reset the number of violation_frames if current frame is safe
+                    violation_frames = 0
+                                
 
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
