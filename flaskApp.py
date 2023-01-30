@@ -26,6 +26,7 @@ def generate_frames(path_x = '',conf_= 0.25):
         frame=buffer.tobytes()
         yield (b'--frame\r\n'
                     b'Content-Type: image/jpeg\r\n\r\n' + frame +b'\r\n')
+            
                     
 @app.route('/FrontPage')
 @app.route('/video')

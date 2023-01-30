@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 
-FROM python:3.8-slim-buster
+FROM nvcr.io/nvidia/pytorch:20.12-py3
+#FROM python:3.8-slim-buster
 
 WORKDIR /flask-yolo
 
