@@ -62,7 +62,7 @@ opt  = {
     "img-size": 640, # default image size
     "conf-thres": 0.25, # confidence threshold for inference.
     "iou-thres" : 0.45, # NMS IoU threshold for inference.
-    "device" : 'cpu',  # device to run our model i.e. 0 or 0,1,2,3 or cpu
+    "device" : '0',  # device to run our model i.e. 0 or 0,1,2,3 or cpu
     "classes" : classes_to_filter  # list of classes to filter or None
 
 }
@@ -74,6 +74,8 @@ def video_detection(path_x='' ,conf_=0.25):
   video_path = path_x
 
   video = cv2.VideoCapture(video_path)
+
+  _, _ = video.read()
 
 
   #Video information
