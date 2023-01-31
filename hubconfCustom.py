@@ -81,6 +81,11 @@ def video_detection(path_x='' ,conf_=0.25):
   w = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
   h = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
   nframes = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+  print("Video information: ")
+  print("FPS: ", fps)
+  print("Width: ", w)
+  print("Height: ", h)
+  print("Number of frames: ", nframes)
 
   # Initialzing object for writing video output
   # output = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'DIVX'),fps , (w,h))
