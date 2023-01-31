@@ -13,7 +13,7 @@
 *.TIF
 *.TIFF
 *.HEIC
-*.mp4
+#*.mp4
 *.mov
 *.MOV
 *.avi
@@ -273,3 +273,6 @@ client_secrets.json
 
 #ignore token.json
 token.json
+
+# ignore inference/videos
+inference/videos
