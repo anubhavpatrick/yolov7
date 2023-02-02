@@ -1,6 +1,6 @@
 import os
 import sys
-sys.path.append('/content/gdrive/MyDrive/yolov7')
+#sys.path.append('/content/gdrive/MyDrive/yolov7')
 
 
 import argparse
@@ -19,6 +19,7 @@ from utils.general import check_img_size, check_requirements, check_imshow, non_
 from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
 
+detections_summary = ''
 
 def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleFill=False, scaleup=True, stride=32):
     # Resize and pad image while meeting stride-multiple constraints
@@ -62,32 +63,48 @@ opt  = {
     "img-size": 640, # default image size
     "conf-thres": 0.25, # confidence threshold for inference.
     "iou-thres" : 0.45, # NMS IoU threshold for inference.
-    "device" : '0',  # device to run our model i.e. 0 or 0,1,2,3 or cpu
+    "device" : 'cpu',  # device to run our model i.e. 0 or 0,1,2,3 or cpu
     "classes" : classes_to_filter  # list of classes to filter or None
-
 }
-def video_detection(path_x='' ,conf_=0.25):
+
+
+def video_detection(path_x='' ,conf_=0.25, frames_buffer=[]):
   import time
-  start_time = time.time()
+  #start_time = time.time()
   # total_detections = 0
 
-  video_path = path_x
+  # create a list to store the detections
+  global detections_summary
 
-  video = cv2.VideoCapture(video_path)
+  #------ Customization  made by Anubhav Patrick------#
+  is_stream = False #Assume input is a video file
 
-  _, _ = video.read()
+  #if path_x starts with http then it is a video stream
+  if path_x.startswith('http'):
+    is_stream = True
+     #pop first frame from frames_buffer to get the first frame
+    while True:
+      if len(frames_buffer) > 0:
+        _ = frames_buffer.pop(0)
+        break
+    #frame = frames_buffer.pop(0)
 
+  #else path_x is a video file
+  else:
+    video_path = path_x
+    video = cv2.VideoCapture(video_path)
+    _, _ = video.read()
 
-  #Video information
-  fps = video.get(cv2.CAP_PROP_FPS)
-  w = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-  h = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-  nframes = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-  print("Video information: ")
-  print("FPS: ", fps)
-  print("Width: ", w)
-  print("Height: ", h)
-  print("Number of frames: ", nframes)
+    #Video information
+    fps = video.get(cv2.CAP_PROP_FPS)
+    w = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+    h = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    nframes = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+    print("Video information: ")
+    print("FPS: ", fps)
+    print("Width: ", w)
+    print("Height: ", h)
+    print("Number of frames: ", nframes)
 
   # Initialzing object for writing video output
   # output = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'DIVX'),fps , (w,h))
@@ -115,10 +132,24 @@ def video_detection(path_x='' ,conf_=0.25):
       for class_name in opt['classes']:
         classes.append(opt['classes'].index(class_name))
 
-    for j in range(nframes):
-        
-
-        ret, img0 = video.read()
+    #for j in range(nframes):
+    while True:
+    
+        #------- Customization made by Anubhav Patrick --------#
+        if is_stream:
+          # check if there are frames in the buffer
+          if len(frames_buffer) > 3:
+            # clear the buffer
+            frames_buffer.clear()
+          elif len(frames_buffer) > 0:
+            #pop first frame from frames_buffer 
+            img0 = frames_buffer.pop(0)
+            ret = True
+          else:
+            ret = False 
+          
+        else:
+          ret, img0 = video.read()
         if ret:
           img = letterbox(img0, imgsz, stride=stride)[0]
           img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
@@ -149,12 +180,23 @@ def video_detection(path_x='' ,conf_=0.25):
                 n = (det[:, -1] == c).sum()  # detections per class
                 total_detections += int(n)
                 s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
-      
-              for *xyxy, conf, cls in reversed(det):
 
+              #get current time in hh:mm:ss format
+              current_time = time.strftime("%H:%M:%S", time.localtime())
+              detections_summary += f"\n {current_time}\n Total Detections: {total_detections}\n Detections per class: {s.split(maxsplit=1)[1]}\n###########\n"
+              #print(detections_summary)
+              
+              for *xyxy, conf, cls in reversed(det):
                 label = f'{names[int(cls)]} {conf:.2f}'
-                plot_one_box(xyxy, img0, label=label, color=colors[int(cls)], line_thickness=3)
-          fps_x = int((j+1)/(time.time() - start_time))
+                if label.startswith('safe'):
+                  color = (0,255,0)
+                else:
+                  color = (0,0,255)
+
+                plot_one_box(xyxy, img0, label=label, color=color, line_thickness=3)
+
+          #fps_x = int((j+1)/(time.time() - start_time))
+          fps_x = None
           # print(f"{j+1}/{nframes} frames processed")
           # print(conf)
           yield img0, fps_x, img0.shape, total_detections
@@ -164,8 +206,8 @@ def video_detection(path_x='' ,conf_=0.25):
         else:
           break
       
-
-  # output.release()
-  video.release()
+  if not is_stream:
+    # output.release()
+    video.release()
 # cv2.imshow("image",img0)
 # cv2.waitKey(0) & 0xFF == ord("q")
