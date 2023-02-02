@@ -138,15 +138,13 @@ def video_detection(path_x='' ,conf_=0.25, frames_buffer=[]):
         #------- Customization made by Anubhav Patrick --------#
         if is_stream:
           # check if there are frames in the buffer
-          if len(frames_buffer) >= 10:
-            # clear the buffer
-            img0=frames_buffer.pop(0)
-            frames_buffer.clear()
-            ret = True 
-          elif len(frames_buffer) > 0:
+
+          if len(frames_buffer) > 0:
             #pop first frame from frames_buffer 
             img0 = frames_buffer.pop(0)
             ret = True
+            if len(frames_buffer) >= 10:
+              frames_buffer.clear()
           else:
             ret = False 
           
