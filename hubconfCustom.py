@@ -138,9 +138,11 @@ def video_detection(path_x='' ,conf_=0.25, frames_buffer=[]):
         #------- Customization made by Anubhav Patrick --------#
         if is_stream:
           # check if there are frames in the buffer
-          if len(frames_buffer) > 3:
+          if len(frames_buffer) >= 10:
             # clear the buffer
+            img0=frames_buffer.pop(0)
             frames_buffer.clear()
+            ret = True 
           elif len(frames_buffer) > 0:
             #pop first frame from frames_buffer 
             img0 = frames_buffer.pop(0)
@@ -150,6 +152,7 @@ def video_detection(path_x='' ,conf_=0.25, frames_buffer=[]):
           
         else:
           ret, img0 = video.read()
+        
         if ret:
           img = letterbox(img0, imgsz, stride=stride)[0]
           img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416

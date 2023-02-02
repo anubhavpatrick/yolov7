@@ -37,7 +37,7 @@ def generate_raw_frames(path_x =''):
             frames_buffer.append(frame)
 
         if not success:
-            break
+            pass
         else:
             ret, buffer = cv2.imencode('.jpg', frame)
             frame = buffer.tobytes()
