@@ -142,12 +142,15 @@ def video_detection(path_x='' ,conf_=0.25, frames_buffer=[]):
           if len(frames_buffer) > 0:
             #pop first frame from frames_buffer 
             img0 = frames_buffer.pop(0)
+            if img0 is None:
+              continue
+            print("Dimensions of frame: ", img0.shape)
             ret = True
             if len(frames_buffer) >= 10:
               frames_buffer.clear()
           else:
             ret = False 
-          
+        
         else:
           ret, img0 = video.read()
         

@@ -100,7 +100,7 @@ def index():
         
         elif 'download_button' in request.form:
             print('Download Button Clicked')
-            print(f'Detections Summary: {hubconfCustom.detections_summary}')
+            #print(f'Detections Summary: {hubconfCustom.detections_summary}')
             #save detections_summary as a text file
             with open('static/reports/detections_summary.txt', 'w') as f:
                 f.write(hubconfCustom.detections_summary)
