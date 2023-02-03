@@ -115,10 +115,13 @@ def index():
                         headers={"Content-Disposition":"attachment;filename=detections_summary.txt"})
             #summary = detection_summary(vid_path)
             #return render_template('index.html', summary = summary)
+        
+        elif 'alert_email_checkbox' in request.form:
+            print('Alert Email Checkbox Checked')
+            recepients = request.form['alert_email_textbox']
+            print('Recepients: ',recepients)
 
-    
     return render_template('index.html')
-
 
 if __name__ == "__main__":
     #copy file from static/files/vid.mp4 to static/video/vid.mp4
