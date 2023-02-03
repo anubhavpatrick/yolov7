@@ -146,14 +146,15 @@ def video_detection(path_x='' ,conf_=0.25, frames_buffer=[]):
             if img0 is None:
               continue
             print("Dimensions of frame: ", img0.shape)
-            ret = True
+            ret = True #we have successfully read one frame from stream
             if len(frames_buffer) >= 10:
-              frames_buffer.clear()
+              frames_buffer.clear() #clear the buffer if it has more than 10 frames to avoid memory overflow
           else:
-            #ret = False 
-            pass
+            # buffer is empty, nothing to do
+            continue
         
         else:
+          # do predictions on alternate frames
           if skip_frame:
             ret, img0 = video.read()
             skip_frame = False
@@ -163,6 +164,7 @@ def video_detection(path_x='' ,conf_=0.25, frames_buffer=[]):
             skip_frame = True
         
         if ret:
+          # perform predictions
           img = letterbox(img0, imgsz, stride=stride)[0]
           img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
           img = np.ascontiguousarray(img)
@@ -216,6 +218,7 @@ def video_detection(path_x='' ,conf_=0.25, frames_buffer=[]):
           # cv2.waitKey(1) & 0xFF == ord("q")
 
         else:
+          # no more frames to read
           break
     
   if not is_stream:
