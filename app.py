@@ -98,7 +98,7 @@ def index():
             vid_ip_path = request.form['ip_address_textbox']
             #check if vid_ip_path is a valid url
             if vid_ip_path.startswith('http://'):
-                vid_path = vid_ip_path
+                vid_path = vid_ip_path.strip()
             else:
                 return render_template('error.html')
             print('Life inference running on : ',vid_path)
