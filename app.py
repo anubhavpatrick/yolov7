@@ -1,17 +1,19 @@
 import os.path
 from flask import Flask, render_template, request, redirect, Response
-from werkzeug.utils import secure_filename
 
 from hubconfCustom import video_detection
 import hubconfCustom
 import cv2
 
+# Initialize the Flask application
 app = Flask(__name__, static_folder = 'static')
 app.config["VIDEO_UPLOADS"] = "static/video"
 app.config["ALLOWED_VIDEO_EXTENSIONS"] = ["MP4", "MOV", "AVI", "WMV"]
 
 frames_buffer = []
 vid_path = 'static/video/vid.mp4'
+send_email = False
+email_recipient = ''
 
 def allowed_video(filename):
     if "." not in filename:
@@ -46,7 +48,7 @@ def generate_raw_frames(path_x =''):
 
 
 def generate_processed_frames(path_x = '',conf_= 0.25):
-    yolo_output = video_detection(path_x,conf_, frames_buffer)
+    yolo_output = video_detection(path_x,conf_, frames_buffer, send_email, email_recipient)
     for detection_,FPS_,xl,yl in yolo_output:
 	    #The function imencode compresses the image and stores it in the memory buffer that is resized to fit the result.
         ref,buffer=cv2.imencode('.jpg',detection_)
@@ -67,7 +69,7 @@ def video_raw():
 
 @app.route('/', methods=["GET", "POST"])
 def index():
-    global vid_path
+    global vid_path, send_email, email_recipient
     if request.method == "POST":
         if 'video_upload_button' in request.form:
             print('Upload Video Button Clicked')
@@ -118,8 +120,12 @@ def index():
         
         elif 'alert_email_checkbox' in request.form:
             print('Alert Email Checkbox Checked')
-            recepients = request.form['alert_email_textbox']
-            print('Recepients: ',recepients)
+            email_recipient = request.form['alert_email_textbox']
+            if send_email:
+                send_email = False
+            else:
+                send_email = True
+            return render_template('index.html')
 
     return render_template('index.html')
 

@@ -4,6 +4,7 @@ import sys
 
 
 import argparse
+import threading
 import time
 from pathlib import Path
 import cv2
@@ -19,7 +20,39 @@ from utils.general import check_img_size, check_requirements, check_imshow, non_
 from utils.plots import plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
 
+#send mail alert
+from send_mail import prepare_and_send_email
+
+#Global Variable
+is_email_allowed = True #True if email is allowed to be sent
+
+
+def toggle_email_allowed():
+    '''This function will toggle the global variable is_email_allowed to False for 10 minutes and then True'''
+    global is_email_allowed
+    is_email_allowed = False
+    #sleep for 10 minutes
+    time.sleep(600)
+    is_email_allowed = True
+
+
+def violation_alert_generator(im0, receipient='anubhav.patrick@giindia.com', subject='PPE Violation Detected at ABESIT', message_text='This is a test email. A PPE violation is detected'):
+    '''This function will send an email with attached alert image 
+    
+    Parameters:
+    im0 (numpy.ndarray): The image to be attached in the email
+
+    Returns:
+    None
+    '''
+    prepare_and_send_email(receipient, subject, message_text, im0)
+    #start a thread to toggle the global variable is_email_allowed to False for 10 minutes
+    t = threading.Thread(target=toggle_email_allowed)
+    t.start()
+
+
 detections_summary = ''
+
 
 def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleFill=False, scaleup=True, stride=32):
     # Resize and pad image while meeting stride-multiple constraints
@@ -68,7 +101,12 @@ opt  = {
 }
 
 
-def video_detection(path_x='' ,conf_=0.25, frames_buffer=[]):
+def video_detection(path_x='' ,conf_=0.25, frames_buffer=[], send_email=False, email_recipient = ''):
+  violation_frames = 0 # Number of frames with violation
+    
+  # Declare global variable is_email_allowed
+  global is_email_allowed
+  
   import time
   #start_time = time.time()
   # total_detections = 0
@@ -190,10 +228,32 @@ def video_detection(path_x='' ,conf_=0.25, frames_buffer=[]):
             if len(det):
               det[:, :4] = scale_coords(img.shape[2:], det[:, :4], img0.shape).round()
 
+              unsafe = False # Flag to indicate if the frame is unsafe
+
               for c in det[:, -1].unique():
                 n = (det[:, -1] == c).sum()  # detections per class
                 total_detections += int(n)
-                s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
+                c = int(c)
+
+                #we need to make sure at there is violation in atleast 5 continous frames
+                # Check if the frame is unsafe
+                if unsafe == False and (c == 0 or c == 1 or c == 3) and n > 0:
+                  unsafe = True
+                
+                s += f"{n} {names[c]}{'s' * (n > 1)}, "  # add to string
+
+              #code to send email on continous violations
+              if unsafe == True and send_email == True:
+                violation_frames += 1
+                if violation_frames >= 5 and is_email_allowed == True:
+                # reset the violation_frames since violation is detected
+                  violation_frames = 0
+                  # create a thread for sending email
+                  t = threading.Thread(target=violation_alert_generator, args=(img0, email_recipient))
+                  t.start()
+                elif unsafe == False:
+                  # reset the number of violation_frames if current frame is safe
+                  violation_frames = 0
 
               #get current time in hh:mm:ss format
               current_time = time.strftime("%H:%M:%S", time.localtime())
