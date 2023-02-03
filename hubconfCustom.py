@@ -132,6 +132,7 @@ def video_detection(path_x='' ,conf_=0.25, frames_buffer=[]):
       for class_name in opt['classes']:
         classes.append(opt['classes'].index(class_name))
 
+    skip_frame = False
     #for j in range(nframes):
     while True:
     
@@ -149,10 +150,17 @@ def video_detection(path_x='' ,conf_=0.25, frames_buffer=[]):
             if len(frames_buffer) >= 10:
               frames_buffer.clear()
           else:
-            ret = False 
+            #ret = False 
+            pass
         
         else:
-          ret, img0 = video.read()
+          if skip_frame:
+            ret, img0 = video.read()
+            skip_frame = False
+            continue
+          else: 
+            ret, img0 = video.read()
+            skip_frame = True
         
         if ret:
           img = letterbox(img0, imgsz, stride=stride)[0]
@@ -209,7 +217,7 @@ def video_detection(path_x='' ,conf_=0.25, frames_buffer=[]):
 
         else:
           break
-      
+    
   if not is_stream:
     # output.release()
     video.release()

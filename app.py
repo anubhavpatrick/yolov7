@@ -94,7 +94,13 @@ def index():
         
         elif 'live_inference_button' in request.form:
             print('Live Inference Button Clicked')
-            vid_path = 'http://192.168.12.10:4747/video'
+            #read text box value
+            vid_ip_path = request.form['ip_address_textbox']
+            #check if vid_ip_path is a valid url
+            if vid_ip_path.startswith('http://'):
+                vid_path = vid_ip_path
+            else:
+                return render_template('error.html')
             print('Life inference running on : ',vid_path)
             return render_template('index.html')
         
