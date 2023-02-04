@@ -152,7 +152,7 @@ def index():
                 video.save(os.path.join(app.config["VIDEO_UPLOADS"], filename))
                 print("Video saved")
                 # display a flash alert message on the web page
-                flash("That video extension is successfully uploaded", "success")
+                flash("That video is successfully uploaded", "success")
                 #return redirect(request.url)
         
         elif 'inference_video_button' in request.form:
