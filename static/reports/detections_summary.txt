@@ -1,55 +1,95 @@
 
- 14:24:58
+ 11:18:06
  Total Detections: 2
  Detections per class: 1 safe, 1 unsafe, 
 ###########
 
- 14:25:00
+ 11:18:08
  Total Detections: 2
  Detections per class: 1 safe, 1 unsafe, 
 ###########
 
- 14:25:01
+ 11:18:10
  Total Detections: 2
  Detections per class: 1 safe, 1 unsafe, 
 ###########
 
- 14:25:02
- Total Detections: 2
- Detections per class: 1 safe, 1 unsafe, 
-###########
-
- 14:25:04
- Total Detections: 2
- Detections per class: 1 safe, 1 unsafe, 
-###########
-
- 14:25:05
+ 11:18:11
  Total Detections: 3
  Detections per class: 1 safe, 2 unsafes, 
 ###########
 
- 14:25:06
+ 11:18:12
  Total Detections: 3
  Detections per class: 1 safe, 2 unsafes, 
 ###########
 
- 14:25:07
+ 11:18:14
  Total Detections: 3
  Detections per class: 1 safe, 2 unsafes, 
 ###########
 
- 14:25:08
+ 11:18:15
  Total Detections: 3
  Detections per class: 1 safe, 2 unsafes, 
 ###########
 
- 14:25:10
+ 11:18:17
  Total Detections: 3
  Detections per class: 1 safe, 2 unsafes, 
 ###########
 
- 14:25:11
- Total Detections: 3
- Detections per class: 1 safe, 2 unsafes, 
+ 11:18:19
+ Total Detections: 1
+ Detections per class: 1 safe, 
+###########
+
+ 11:18:20
+ Total Detections: 1
+ Detections per class: 1 safe, 
+###########
+
+ 11:18:21
+ Total Detections: 1
+ Detections per class: 1 safe, 
+###########
+
+ 11:18:21
+ Total Detections: 1
+ Detections per class: 1 safe, 
+###########
+
+ 11:18:22
+ Total Detections: 1
+ Detections per class: 1 safe, 
+###########
+
+ 11:18:23
+ Total Detections: 1
+ Detections per class: 1 safe, 
+###########
+
+ 11:18:26
+ Total Detections: 1
+ Detections per class: 1 safe, 
+###########
+
+ 11:18:27
+ Total Detections: 1
+ Detections per class: 1 safe, 
+###########
+
+ 11:18:28
+ Total Detections: 1
+ Detections per class: 1 safe, 
+###########
+
+ 11:18:30
+ Total Detections: 1
+ Detections per class: 1 safe, 
+###########
+
+ 11:18:31
+ Total Detections: 1
+ Detections per class: 1 safe, 
 ###########

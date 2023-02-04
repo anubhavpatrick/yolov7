@@ -13,6 +13,18 @@
         <title>PPE Violation Detection</title>
     </head>
     <body>
+        <!-- Script-->
+        <!-- Reference - https://stackoverflow.com/questions/33580143/flask-show-flash-messages-in-alertbox -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <script>
+            var messages = {{ messages | safe }};
+            for (var i=0; i<messages.length; i++) {
+                alert(messages[i]);
+            }
+            </script>
+        {% endif %}
+        {% endwith %}
         <!-- =============== HEADER =============== -->
         <header class="header container" id="header">
             <div class="title">
