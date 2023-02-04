@@ -59,7 +59,7 @@ def generate_raw_frames(path_x):
     # capture video from file or ip cam stream
     video = cv2.VideoCapture(path_x)
     
-    while True:
+    while True:            
         # Keep reading the frames from the video file or ip cam stream
         success, frame = video.read()
 
