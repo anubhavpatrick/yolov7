@@ -195,7 +195,7 @@ def index():
             else:
                 can_send_email = True
                 # display a flash alert message on the web page
-                flash(f"Alert email is enabled at {email_recipient}", "success")
+                flash(f"Alert email is enabled at {email_recipient}. Violation alert with a gap of 10 minutes", "success")
 
     return render_template('index.html')
 
