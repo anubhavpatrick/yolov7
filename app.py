@@ -66,7 +66,8 @@ def generate_raw_frames(path_x):
         if not success:
             #if there are no more frames to read, break the loop
             # Potential bug: if prog is not able to connect to ip cam stream immidiately, this will break the code
-            break   
+            #break
+            pass   
         else:
             # if path_x starts with http, this is an ip stream
             # We will read it once and store it in the buffer for the inference function

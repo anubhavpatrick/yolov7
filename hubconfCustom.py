@@ -30,13 +30,13 @@ is_email_allowed = True #True if email is allowed to be sent
 def toggle_email_allowed():
     '''This function will toggle the global variable is_email_allowed to False for 10 minutes and then True'''
     global is_email_allowed
-    is_email_allowed = False
+    #is_email_allowed = False
     #sleep for 10 minutes
     time.sleep(600)
     is_email_allowed = True
 
 
-def violation_alert_generator(im0, receipient='anubhav.patrick@giindia.com', subject='PPE Violation Detected at ABESIT', message_text='This is a test email. A PPE violation is detected'):
+def violation_alert_generator(im0, receipient='anubhav.patrick@giindia.com', subject='PPE Violation Detected at ABESIT', message_text='A PPE violation is detected at ABESIT'):
     '''This function will send an email with attached alert image 
     
     Parameters:
@@ -45,8 +45,10 @@ def violation_alert_generator(im0, receipient='anubhav.patrick@giindia.com', sub
     Returns:
     None
     '''
+    global is_email_allowed
     prepare_and_send_email(receipient, subject, message_text, im0)
     #start a thread to toggle the global variable is_email_allowed to False for 10 minutes
+    is_email_allowed = False
     t = threading.Thread(target=toggle_email_allowed)
     t.start()
 
