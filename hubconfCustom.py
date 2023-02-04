@@ -32,6 +32,7 @@ def toggle_email_allowed():
     global is_email_allowed
     #is_email_allowed = False
     #sleep for 10 minutes
+    print('Thread going to sleep for 10 minutes')
     time.sleep(600)
     is_email_allowed = True
 
@@ -46,11 +47,13 @@ def violation_alert_generator(im0, receipient='anubhav.patrick@giindia.com', sub
     None
     '''
     global is_email_allowed
+    is_email_allowed = False
     prepare_and_send_email(receipient, subject, message_text, im0)
     #start a thread to toggle the global variable is_email_allowed to False for 10 minutes
-    is_email_allowed = False
-    t = threading.Thread(target=toggle_email_allowed)
-    t.start()
+    time.sleep(600)
+    is_email_allowed = True
+    #t = threading.Thread(target=toggle_email_allowed)
+    #t.start()
 
 
 detections_summary = ''
