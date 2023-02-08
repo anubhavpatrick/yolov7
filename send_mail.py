@@ -45,8 +45,18 @@ def aunthentication():
     return creds
 
 
-def prepare_and_send_email(recipient, subject, message_text, im0):
+def prepare_and_send_email(sender, recipient, subject, message_text, im0):
     """Prepares and send email with attachment to the participants 
+
+    Args:
+    sender: Email address of the sender.
+    recipient: Email address of the receiver.
+    subject: The subject of the email message.
+    message_text: The text of the email message.
+    img_file: The image to be attached
+
+    Returns:
+    None
     """
     creds = aunthentication()
 
@@ -55,7 +65,7 @@ def prepare_and_send_email(recipient, subject, message_text, im0):
         service = build('gmail', 'v1', credentials=creds)
 
         #create message 
-        msg = create_message('anubhav.patrick@giindia.com', recipient, subject, message_text, im0)
+        msg = create_message(sender, recipient, subject, message_text, im0)
         send_message(service, 'me', msg)
 
     except HttpError as error:
@@ -83,11 +93,15 @@ def create_message(sender, to, subject, message_text, img_file):
     message['to'] = to
     message['subject'] = subject
 
+    base_loc = 'static/violations/'
     location = 'ABESIT'
     #get current date and time
     current_date_time = time.time()
     formatted_date_time = time.strftime("%H:%M:%S_%d-%m-%Y", time.localtime(current_date_time))
-    file_name = 'violation_'+location + '_' + formatted_date_time + '.jpg'
+    #if base_loc doesn't exist, create it
+    if not os.path.exists(base_loc):
+        os.makedirs(base_loc)
+    file_name = base_loc+'violation_'+location + '_' + formatted_date_time + '.jpg'
 
     #convert img_file into jpeg
     cv2.imencode('.jpg', img_file)[1].tofile(file_name)
@@ -150,5 +164,6 @@ def send_message(service, user_id, message):
 
 
 if __name__ == '__main__':
+    #read image
     #prepare_and_send_email('anubhavpatrick@gmail.com', 'Greeting from Global Infoventures', 'This is a test email for our upcoming app')
     pass

@@ -1,0 +1,35 @@
+
+ 22:36:46
+ Total Detections: 2
+ Detections per class: 1 safe, 1 unsafe, 
+###########
+
+ 22:36:48
+ Total Detections: 2
+ Detections per class: 1 safe, 1 unsafe, 
+###########
+
+ 22:36:50
+ Total Detections: 4
+ Detections per class: 1 safe, 3 unsafes, 
+###########
+
+ 22:36:51
+ Total Detections: 3
+ Detections per class: 1 safe, 2 unsafes, 
+###########
+
+ 22:36:53
+ Total Detections: 3
+ Detections per class: 1 safe, 2 unsafes, 
+###########
+
+ 22:36:54
+ Total Detections: 3
+ Detections per class: 1 safe, 2 unsafes, 
+###########
+
+ 22:36:56
+ Total Detections: 3
+ Detections per class: 1 safe, 2 unsafes, 
+###########

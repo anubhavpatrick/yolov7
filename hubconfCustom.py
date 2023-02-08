@@ -1,23 +1,55 @@
-import os
-import sys
-sys.path.append('/content/gdrive/MyDrive/yolov7')
+'''
+A modified version of hubconf.py  
 
+Modifications:
+1. Added a function to detect PPE violation in a video file or video stream
+2. Added a function to send email alert with attached image
 
-import argparse
+Modifications made by Anubhav Patrick
+Date: 04/02/2023
+'''
+
+import threading
 import time
-from pathlib import Path
 import cv2
 import torch
 import numpy as np
-import torch.backends.cudnn as cudnn
 from numpy import random
 
 from models.experimental import attempt_load
-from utils.datasets import LoadStreams, LoadImages
-from utils.general import check_img_size, check_requirements, check_imshow, non_max_suppression, apply_classifier, \
-    scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path
+from utils.general import check_img_size, non_max_suppression, scale_coords, set_logging
 from utils.plots import plot_one_box
-from utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
+from utils.torch_utils import select_device, time_synchronized
+
+#send mail alert
+from send_mail import prepare_and_send_email
+
+#Global Variables
+send_next_email = True #True if email is allowed to be sent
+is_email_allowed = False
+email_sender = 'support.ai@giindia.com'
+email_recipient = 'support.ai@giindia.com'
+
+
+def violation_alert_generator(im0, subject='PPE Violation Detected at ABESIT', message_text='A PPE violation is detected at ABESIT'):
+    '''This function will send an email with attached alert image 
+    
+    Parameters:
+    im0 (numpy.ndarray): The image to be attached in the email
+
+    Returns:
+    None
+    '''
+    global send_next_email, email_recipient
+    send_next_email = False
+    print('Sending email alert to ', email_recipient)
+    prepare_and_send_email(email_sender, email_recipient, subject, message_text, im0)
+    # wait for 10 minutes before sending another email
+    time.sleep(600)
+    send_next_email = True
+
+
+detections_summary = ''
 
 
 def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleFill=False, scaleup=True, stride=32):
@@ -62,32 +94,51 @@ opt  = {
     "img-size": 640, # default image size
     "conf-thres": 0.25, # confidence threshold for inference.
     "iou-thres" : 0.45, # NMS IoU threshold for inference.
-    "device" : '0',  # device to run our model i.e. 0 or 0,1,2,3 or cpu
+    "device" : 'cpu',  # device to run our model i.e. 0 or 0,1,2,3 or cpu
     "classes" : classes_to_filter  # list of classes to filter or None
-
 }
-def video_detection(path_x='' ,conf_=0.25):
+
+
+def video_detection(conf_=0.25, frames_buffer=[]):
+  violation_frames = 0 # Number of frames with violation
+    
+  # Declare global variable is_email_allowed
+  global send_next_email
+  global is_email_allowed
+  global email_recipient
+  
   import time
-  start_time = time.time()
+  #start_time = time.time()
   # total_detections = 0
 
-  video_path = path_x
+  # create a list to store the detections
+  global detections_summary
 
-  video = cv2.VideoCapture(video_path)
+  #------ Customization  made by Anubhav Patrick------#
+ 
+  #pop first frame from frames_buffer to get the first frame
+  while True:
+    if len(frames_buffer) > 0:
+      _ = frames_buffer.pop(0)
+      break
+    #frame = frames_buffer.pop(0)
 
-  _, _ = video.read()
+  #else path_x is a video file
+  else:
+    video_path = path_x
+    video = cv2.VideoCapture(video_path)
+    _, _ = video.read()
 
-
-  #Video information
-  fps = video.get(cv2.CAP_PROP_FPS)
-  w = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
-  h = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-  nframes = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
-  print("Video information: ")
-  print("FPS: ", fps)
-  print("Width: ", w)
-  print("Height: ", h)
-  print("Number of frames: ", nframes)
+    #Video information
+    fps = video.get(cv2.CAP_PROP_FPS)
+    w = int(video.get(cv2.CAP_PROP_FRAME_WIDTH))
+    h = int(video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    nframes = int(video.get(cv2.CAP_PROP_FRAME_COUNT))
+    print("Video information: ")
+    print("FPS: ", fps)
+    print("Width: ", w)
+    print("Height: ", h)
+    print("Number of frames: ", nframes)
 
   # Initialzing object for writing video output
   # output = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'DIVX'),fps , (w,h))
@@ -115,11 +166,39 @@ def video_detection(path_x='' ,conf_=0.25):
       for class_name in opt['classes']:
         classes.append(opt['classes'].index(class_name))
 
-    for j in range(nframes):
-        
+    skip_frame = False
+    #for j in range(nframes):
+    while True:
+    
+        #------- Customization made by Anubhav Patrick --------#
+        #if is_stream:
+          # check if there are frames in the buffer
 
-        ret, img0 = video.read()
+        if len(frames_buffer) > 0:
+          #pop first frame from frames_buffer 
+          img0 = frames_buffer.pop(0)
+          if img0 is None:
+            continue
+          #print("Dimensions of frame: ", img0.shape)
+          ret = True #we have successfully read one frame from stream
+          if len(frames_buffer) >= 10:
+            frames_buffer.clear() #clear the buffer if it has more than 10 frames to avoid memory overflow
+        else:
+          # buffer is empty, nothing to do
+          continue
+        
+        '''else:
+          # do predictions on alternate frames
+          if skip_frame:
+            ret, img0 = video.read()
+            skip_frame = False
+            continue
+          else: 
+            ret, img0 = video.read()
+            skip_frame = True'''
+        
         if ret:
+          # perform predictions
           img = letterbox(img0, imgsz, stride=stride)[0]
           img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB, to 3x416x416
           img = np.ascontiguousarray(img)
@@ -145,16 +224,49 @@ def video_detection(path_x='' ,conf_=0.25):
             if len(det):
               det[:, :4] = scale_coords(img.shape[2:], det[:, :4], img0.shape).round()
 
+              unsafe = False # Flag to indicate if the frame is unsafe
+
               for c in det[:, -1].unique():
                 n = (det[:, -1] == c).sum()  # detections per class
                 total_detections += int(n)
-                s += f"{n} {names[int(c)]}{'s' * (n > 1)}, "  # add to string
-      
-              for *xyxy, conf, cls in reversed(det):
+                c = int(c)
 
+                #we need to make sure at there is violation in atleast 5 continous frames
+                # Check if the frame is unsafe
+                if unsafe == False and (c == 0 or c == 1 or c == 3) and n > 0:
+                  unsafe = True
+                
+                s += f"{n} {names[c]}{'s' * (n > 1)}, "  # add to string
+
+              #code to send email on continous violations
+              if unsafe == True and is_email_allowed == True:
+                violation_frames += 1
+                if violation_frames >= 5 and send_next_email == True:
+                # reset the violation_frames since violation is detected
+                  violation_frames = 0
+                  # create a thread for sending email
+                  t = threading.Thread(target=violation_alert_generator, args=(img0,))
+                  t.start()
+                elif unsafe == False:
+                  # reset the number of violation_frames if current frame is safe
+                  violation_frames = 0
+
+              #get current time in hh:mm:ss format
+              current_time = time.strftime("%H:%M:%S", time.localtime())
+              detections_summary += f"\n {current_time}\n Total Detections: {total_detections}\n Detections per class: {s.split(maxsplit=1)[1]}\n###########\n"
+              #print(detections_summary)
+              
+              for *xyxy, conf, cls in reversed(det):
                 label = f'{names[int(cls)]} {conf:.2f}'
-                plot_one_box(xyxy, img0, label=label, color=colors[int(cls)], line_thickness=3)
-          fps_x = int((j+1)/(time.time() - start_time))
+                if label.startswith('safe'):
+                  color = (0,255,0)
+                else:
+                  color = (0,0,255)
+
+                plot_one_box(xyxy, img0, label=label, color=color, line_thickness=3)
+
+          #fps_x = int((j+1)/(time.time() - start_time))
+          fps_x = None
           # print(f"{j+1}/{nframes} frames processed")
           # print(conf)
           yield img0, fps_x, img0.shape, total_detections
@@ -162,10 +274,11 @@ def video_detection(path_x='' ,conf_=0.25):
           # cv2.waitKey(1) & 0xFF == ord("q")
 
         else:
+          # no more frames to read
           break
-      
-
-  # output.release()
-  video.release()
+    
+  '''if not is_stream:
+    # output.release()
+    video.release()'''
 # cv2.imshow("image",img0)
 # cv2.waitKey(0) & 0xFF == ord("q")

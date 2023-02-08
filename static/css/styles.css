@@ -1,0 +1,270 @@
+/*=============== GOOGLE FONTS ===============*/
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500&display=swap");
+
+/*=============== VARIABLES CSS ===============*/
+:root {
+  /*========== Colors ==========*/
+  --first-color: hsl(30, 16%, 50%);
+  --text-color: #fff;
+  --text-color-black: hsl(30, 8%, 15%);
+  --body-color: hsl(30, 100%, 98%);
+  --line-color: hsl(30, 12%, 35%);
+  --active-color: hsl(30, 100%, 90%);
+  --inactive-color: hsl(30, 80%, 90%);
+
+  /*========== Font and typography ==========*/
+  --body-font: 'Poppins', sans-serif;
+  --h1-font-size: 1.5rem;
+  --medium-font-size: 0.973rem;
+  --small-font-size: 0.813rem;
+  --smaller-font-size: 0.75rem;
+}
+
+/* Responsive typography */
+@media screen and (min-width: 1024px) {
+  :root {
+    --h1-font-size: 1.6875rem;
+    --medium-font-size: 1.125rem;
+    --small-font-size: .875rem;
+    --smaller-font-size: .813rem;
+  }
+}
+
+/*=============== BASE ===============*/
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: var(--body-font);
+  background-color: var(--body-color);
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+form :where(i, p) {
+  color: var(--first-color);
+}
+
+form i {
+  font-size: 50px;
+}
+
+form button {
+  font-size: 16px;
+  border: none;
+  font: var(--body-font);
+  background-color: var(--first-color);
+  cursor: pointer;
+}
+
+a {
+  text-decoration: none;
+  color: var(--text-color-black);
+}
+
+.container {
+  margin: 5rem;
+  padding: 1rem 5rem;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 1rem;
+  background-color: #FFF;
+}
+
+.main{
+  padding: 0.5rem;
+}
+
+/*=============== GALLERY ===============*/
+.gallery {
+  display: flex;
+  justify-content: space-evenly;
+  align-content: center;
+}
+
+.gallery__card {
+  position: relative;
+  width: 50em;
+  height: 40em;
+  display: flex;
+  align-items: center;
+  border-radius: 3rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.gallery__video {
+  width: fit-content;
+}
+
+::selection {
+  color: #fff;
+  background: var(--first-color);
+}
+
+.wrapper {
+  width: 430px;
+  background: #fff;
+  border-radius: 5px;
+  padding: 30px;
+  box-shadow: 7px 7px 12px rgba(0, 0, 0, 0.05);
+}
+
+.wrapper header {
+  color: var(--first-color);
+  font-size: 27px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.wrapper form {
+  height: 167px;
+  display: flex;
+  cursor: pointer;
+  margin: 30px 0;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  border-radius: 5px;
+  border: 2px dashed var(--first-color);
+}
+
+/*=============== HEADING ===============*/
+.title {
+  text-align: center;
+}
+
+/*=============== BUTTONS ===============*/
+.btn {
+  margin-top: 4rem;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+}
+
+.upload__button,
+.download__button,
+.live__button,
+.inference__button{
+  display: inline-flex;
+  align-items: center;
+  background-color: var(--first-color);
+  color: var(--text-color-black);
+  border-radius: 0.5rem;
+  padding: 0.5rem 1.5rem;
+  cursor: pointer;
+}
+
+.button__icon {
+  margin-left: 0.25rem;
+  transition: 0.3s;
+  font-size: var(--h1-font-size);
+  color: var(--text-color-black);
+}
+
+.download__button:hover .button__icon {
+  transform: translateY(0.25rem);
+}
+
+.upload__button:hover .button__icon {
+  transform: translateY(-0.25rem);
+}
+
+.inference__button:hover .button__icon {
+  transform: rotate(1rad);
+}
+
+.ip_address-input,
+.custom-file-input{
+  margin-right: 1rem;
+}
+
+/*=============== TOGGLE SWITCH ===============*/
+.email__sending {
+  border-radius: 0.5rem;
+  padding: 1rem 5rem 1rem 1rem;
+  background-color: var(--first-color);
+  display: inline-flex;
+  align-items: center;
+  margin: 2rem 5rem;
+}
+
+.toggle__content {
+  position: relative;
+  margin-left: 2rem;
+  bottom: 0.74rem;
+}
+
+.email__label {
+  position: relative;
+  left: 4rem;
+  top: 0.85rem;
+}
+
+.toggle__label {
+  cursor: pointer;
+  padding-block: 0.5rem;
+}
+
+.toggle__check {
+  display: none;
+}
+
+.toggle__rail {
+  position: relative;
+  width: 52px;
+  height: 4px;
+  background-color: var(--line-color);
+  border-radius: 2rem;
+}
+
+.toggle__circle {
+  display: block;
+  width: 24px;
+  height: 24px;
+  background-color: var(--first-color);
+  box-shadow: inset 0 0 0 4px var(--inactive-color);
+  border-radius: 50%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  transition: transform 0.4s, box-shadow 0.4s;
+  z-index: 2;
+}
+
+.toggle__border {
+  position: absolute;
+  width: 32px;
+  height: 32px;
+  background-color: var(--first-color);
+  border-radius: 50%;
+  left: -4px;
+  top: 0;
+  bottom: 0;
+  margin: auto 0;
+  transition: transform 0.4s;
+}
+
+/* Toggle animation effects */
+.toggle__check:checked ~ .toggle__rail .toggle__circle {
+  transform: translateX(28px);
+  box-shadow: inset 0 0 0 12px var(--active-color);
+}
+
+.toggle__check:checked ~ .toggle__rail .toggle__border {
+  transform: translateX(28px);
+}
+
+/*=============== BREAKPOINTS ===============*/
+/* For small devices */
+
+
+/* For large devices */
