@@ -45,8 +45,18 @@ def aunthentication():
     return creds
 
 
-def prepare_and_send_email(recipient, subject, message_text, im0):
+def prepare_and_send_email(sender, recipient, subject, message_text, im0):
     """Prepares and send email with attachment to the participants 
+
+    Args:
+    sender: Email address of the sender.
+    recipient: Email address of the receiver.
+    subject: The subject of the email message.
+    message_text: The text of the email message.
+    img_file: The image to be attached
+
+    Returns:
+    None
     """
     creds = aunthentication()
 
@@ -55,7 +65,7 @@ def prepare_and_send_email(recipient, subject, message_text, im0):
         service = build('gmail', 'v1', credentials=creds)
 
         #create message 
-        msg = create_message('anubhav.patrick@giindia.com', recipient, subject, message_text, im0)
+        msg = create_message(sender, recipient, subject, message_text, im0)
         send_message(service, 'me', msg)
 
     except HttpError as error:
@@ -150,5 +160,6 @@ def send_message(service, user_id, message):
 
 
 if __name__ == '__main__':
+    #read image
     #prepare_and_send_email('anubhavpatrick@gmail.com', 'Greeting from Global Infoventures', 'This is a test email for our upcoming app')
     pass

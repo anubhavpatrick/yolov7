@@ -27,6 +27,7 @@ from send_mail import prepare_and_send_email
 #Global Variables
 send_next_email = True #True if email is allowed to be sent
 is_email_allowed = False
+email_sender = 'support.ai@giindia.com'
 email_recipient = 'support.ai@giindia.com'
 
 
@@ -42,7 +43,7 @@ def violation_alert_generator(im0, subject='PPE Violation Detected at ABESIT', m
     global send_next_email, email_recipient
     send_next_email = False
     print('Sending email alert to ', email_recipient)
-    prepare_and_send_email(email_recipient, subject, message_text, im0)
+    prepare_and_send_email(email_sender, email_recipient, subject, message_text, im0)
     # wait for 10 minutes before sending another email
     time.sleep(600)
     send_next_email = True
