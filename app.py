@@ -5,7 +5,6 @@ Date: 07/02/2023
 '''
 
 import os.path
-from threading import BoundedSemaphore
 import validators
 from flask import Flask, render_template, request, Response, jsonify
 
@@ -26,8 +25,6 @@ frames_buffer = [] #buffer to store frames from a stream
 vid_path = app.config["VIDEO_UPLOADS"]+'/vid.mp4' #path to uploaded/stored video file
 video_frames = cv2.VideoCapture(vid_path) #video capture object
 
-#prevent more than one instance of the model from running
-semaphore = BoundedSemaphore(1)
 
 def allowed_video(filename: str):
     '''A function to check if the uploaded file is a video
