@@ -98,6 +98,9 @@ def create_message(sender, to, subject, message_text, img_file):
     #get current date and time
     current_date_time = time.time()
     formatted_date_time = time.strftime("%H:%M:%S_%d-%m-%Y", time.localtime(current_date_time))
+    #if base_loc doesn't exist, create it
+    if not os.path.exists(base_loc):
+        os.makedirs(base_loc)
     file_name = base_loc+'violation_'+location + '_' + formatted_date_time + '.jpg'
 
     #convert img_file into jpeg
