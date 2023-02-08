@@ -6,7 +6,7 @@ Date: 07/02/2023
 
 import os.path
 import validators
-from flask import Flask, render_template, request, Response, jsonify
+from flask import Flask, render_template, request, Response
 
 from hubconfCustom import video_detection
 import hubconfCustom
@@ -87,7 +87,7 @@ def generate_processed_frames(conf_= 0.25):
     yolo_output = video_detection(conf_, frames_buffer)
     #iterate through the list of processed frames
     for detection_, _, _, _ in yolo_output:
-	    #The function imencode compresses the image and stores it in the memory buffer 
+        #The function imencode compresses the image and stores it in the memory buffer 
         _,buffer=cv2.imencode('.jpg',detection_)
         #convert the buffer to bytes
         frame=buffer.tobytes()
@@ -106,6 +106,7 @@ def video_raw():
     Returns:
         Response: a response object containing the raw video stream
     '''
+
     return Response(generate_raw_frames(),mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
@@ -188,7 +189,7 @@ def submit_form():
                 f.write(hubconfCustom.detections_summary)
             return Response(open('static/reports/detections_summary.txt', 'rb').read(),
                         mimetype='text/plain',
-                        headers={"Content-Disvid_ip_path.startswith('http://')position":"attachment;filename=detections_summary.txt"})
+                        headers={"Content-Disposition":"attachment;filename=detections_summary.txt"})
 
         # handle alert email request
         elif 'alert_email_checkbox' in request.form:
