@@ -1,33 +1,36 @@
-import os
-import sys
-#sys.path.append('/content/gdrive/MyDrive/yolov7')
+'''
+A modified version of hubconf.py  
 
+Modifications:
+1. Added a function to detect PPE violation in a video file or video stream
+2. Added a function to send email alert with attached image
 
-import argparse
+Modifications made by Anubhav Patrick
+Date: 04/02/2023
+'''
+
 import threading
 import time
-from pathlib import Path
 import cv2
 import torch
 import numpy as np
-import torch.backends.cudnn as cudnn
 from numpy import random
 
 from models.experimental import attempt_load
-from utils.datasets import LoadStreams, LoadImages
-from utils.general import check_img_size, check_requirements, check_imshow, non_max_suppression, apply_classifier, \
-    scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path
+from utils.general import check_img_size, non_max_suppression, scale_coords, set_logging
 from utils.plots import plot_one_box
-from utils.torch_utils import select_device, load_classifier, time_synchronized, TracedModel
+from utils.torch_utils import select_device, time_synchronized
 
 #send mail alert
 from send_mail import prepare_and_send_email
 
-#Global Variable
-is_email_allowed = True #True if email is allowed to be sent
+#Global Variables
+send_next_email = True #True if email is allowed to be sent
+is_email_allowed = False
+email_recipient = 'support.ai@giindia.com'
 
 
-def violation_alert_generator(im0, receipient='anubhav.patrick@giindia.com', subject='PPE Violation Detected at ABESIT', message_text='A PPE violation is detected at ABESIT'):
+def violation_alert_generator(im0, subject='PPE Violation Detected at ABESIT', message_text='A PPE violation is detected at ABESIT'):
     '''This function will send an email with attached alert image 
     
     Parameters:
@@ -36,12 +39,13 @@ def violation_alert_generator(im0, receipient='anubhav.patrick@giindia.com', sub
     Returns:
     None
     '''
-    global is_email_allowed
-    is_email_allowed = False
-    prepare_and_send_email(receipient, subject, message_text, im0)
+    global send_next_email, email_recipient
+    send_next_email = False
+    print('Sending email alert to ', email_recipient)
+    prepare_and_send_email(email_recipient, subject, message_text, im0)
     # wait for 10 minutes before sending another email
     time.sleep(600)
-    is_email_allowed = True
+    send_next_email = True
 
 
 detections_summary = ''
@@ -94,11 +98,13 @@ opt  = {
 }
 
 
-def video_detection(path_x='' ,conf_=0.25, frames_buffer=[], send_email=False, email_recipient = ''):
+def video_detection(conf_=0.25, frames_buffer=[]):
   violation_frames = 0 # Number of frames with violation
     
   # Declare global variable is_email_allowed
+  global send_next_email
   global is_email_allowed
+  global email_recipient
   
   import time
   #start_time = time.time()
@@ -108,16 +114,12 @@ def video_detection(path_x='' ,conf_=0.25, frames_buffer=[], send_email=False, e
   global detections_summary
 
   #------ Customization  made by Anubhav Patrick------#
-  is_stream = False #Assume input is a video file
-
-  #if path_x starts with http then it is a video stream
-  if path_x.startswith('http'):
-    is_stream = True
-     #pop first frame from frames_buffer to get the first frame
-    while True:
-      if len(frames_buffer) > 0:
-        _ = frames_buffer.pop(0)
-        break
+ 
+  #pop first frame from frames_buffer to get the first frame
+  while True:
+    if len(frames_buffer) > 0:
+      _ = frames_buffer.pop(0)
+      break
     #frame = frames_buffer.pop(0)
 
   #else path_x is a video file
@@ -168,23 +170,23 @@ def video_detection(path_x='' ,conf_=0.25, frames_buffer=[], send_email=False, e
     while True:
     
         #------- Customization made by Anubhav Patrick --------#
-        if is_stream:
+        #if is_stream:
           # check if there are frames in the buffer
 
-          if len(frames_buffer) > 0:
-            #pop first frame from frames_buffer 
-            img0 = frames_buffer.pop(0)
-            if img0 is None:
-              continue
-            print("Dimensions of frame: ", img0.shape)
-            ret = True #we have successfully read one frame from stream
-            if len(frames_buffer) >= 10:
-              frames_buffer.clear() #clear the buffer if it has more than 10 frames to avoid memory overflow
-          else:
-            # buffer is empty, nothing to do
+        if len(frames_buffer) > 0:
+          #pop first frame from frames_buffer 
+          img0 = frames_buffer.pop(0)
+          if img0 is None:
             continue
-        
+          #print("Dimensions of frame: ", img0.shape)
+          ret = True #we have successfully read one frame from stream
+          if len(frames_buffer) >= 10:
+            frames_buffer.clear() #clear the buffer if it has more than 10 frames to avoid memory overflow
         else:
+          # buffer is empty, nothing to do
+          continue
+        
+        '''else:
           # do predictions on alternate frames
           if skip_frame:
             ret, img0 = video.read()
@@ -192,7 +194,7 @@ def video_detection(path_x='' ,conf_=0.25, frames_buffer=[], send_email=False, e
             continue
           else: 
             ret, img0 = video.read()
-            skip_frame = True
+            skip_frame = True'''
         
         if ret:
           # perform predictions
@@ -236,13 +238,13 @@ def video_detection(path_x='' ,conf_=0.25, frames_buffer=[], send_email=False, e
                 s += f"{n} {names[c]}{'s' * (n > 1)}, "  # add to string
 
               #code to send email on continous violations
-              if unsafe == True and send_email == True:
+              if unsafe == True and is_email_allowed == True:
                 violation_frames += 1
-                if violation_frames >= 5 and is_email_allowed == True:
+                if violation_frames >= 5 and send_next_email == True:
                 # reset the violation_frames since violation is detected
                   violation_frames = 0
                   # create a thread for sending email
-                  t = threading.Thread(target=violation_alert_generator, args=(img0, email_recipient))
+                  t = threading.Thread(target=violation_alert_generator, args=(img0,))
                   t.start()
                 elif unsafe == False:
                   # reset the number of violation_frames if current frame is safe
@@ -274,8 +276,8 @@ def video_detection(path_x='' ,conf_=0.25, frames_buffer=[], send_email=False, e
           # no more frames to read
           break
     
-  if not is_stream:
+  '''if not is_stream:
     # output.release()
-    video.release()
+    video.release()'''
 # cv2.imshow("image",img0)
 # cv2.waitKey(0) & 0xFF == ord("q")
