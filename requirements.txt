@@ -43,3 +43,6 @@ thop  # FLOPs computation
 # Flask
 Flask>=2.2.2
 Flask-Bootstrap
+
+# Url validation
+validators>=0.20.0
