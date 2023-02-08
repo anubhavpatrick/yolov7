@@ -93,11 +93,12 @@ def create_message(sender, to, subject, message_text, img_file):
     message['to'] = to
     message['subject'] = subject
 
+    base_loc = 'static/violations/'
     location = 'ABESIT'
     #get current date and time
     current_date_time = time.time()
     formatted_date_time = time.strftime("%H:%M:%S_%d-%m-%Y", time.localtime(current_date_time))
-    file_name = 'violation_'+location + '_' + formatted_date_time + '.jpg'
+    file_name = base_loc+'violation_'+location + '_' + formatted_date_time + '.jpg'
 
     #convert img_file into jpeg
     cv2.imencode('.jpg', img_file)[1].tofile(file_name)
