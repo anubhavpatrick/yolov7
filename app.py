@@ -62,8 +62,11 @@ def generate_raw_frames():
         success, frame = video_frames.read()
 
         if success:
+            # create a copy of the frame to store in the buffer
+            frame_copy = frame.copy()
+
             #store the frame in the buffer for violation detection
-            frames_buffer.append(frame) 
+            frames_buffer.append(frame_copy) 
             
             #compress the frame and store it in the memory buffer
             _, buffer = cv2.imencode('.jpg', frame) 
