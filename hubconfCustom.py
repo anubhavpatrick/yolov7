@@ -161,8 +161,7 @@ def video_detection(conf_=0.25, frames_buffer=[]):
         
         # Process all the predictions and draw the bounding boxes
         for i, det in enumerate(pred):
-          s = ''
-          s += '%gx%g ' % img.shape[2:]  # print string
+          classwise_summary = ''
 
           # if there is a detection
           if len(det):
@@ -186,7 +185,7 @@ def video_detection(conf_=0.25, frames_buffer=[]):
                 unsafe = True
               
               # add the number of detections per class to the string
-              s += f"{n} {names[c]}{'s' * (n > 1)}, "  # add to string
+              classwise_summary += f"{n} {names[c]}{'s' * (n > 1)}, "  # add to string
 
             #code to send email on five continous violations
             if unsafe == True and is_email_allowed == True:
@@ -204,7 +203,7 @@ def video_detection(conf_=0.25, frames_buffer=[]):
             # Store the detections summary in a string
             #get current time in hh:mm:ss format
             current_time = time.strftime("%H:%M:%S", time.localtime())
-            detections_summary += f"\n {current_time}\n Total Detections: {total_detections}\n Detections per class: {s.split(maxsplit=1)[1]}\n###########\n"
+            detections_summary += f"\n {current_time}\n Total Detections: {total_detections}\n Detections per class: {classwise_summary}\n###########\n"
             
             # Plot the bounding boxes on the frame
             for *xyxy, conf, cls in det:
