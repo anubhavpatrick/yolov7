@@ -25,23 +25,42 @@ from utils.torch_utils import select_device, time_synchronized
 from send_mail import prepare_and_send_email
 
 #Global Variables
-send_next_email = True #True if email is allowed to be sent
-is_email_allowed = False
+is_email_allowed = False #when user checks the email checkbox, this variable will be set to True
+send_next_email = True #We have to wait for 10 minutes before sending another email
+# NEXT TWO STATEMENTS NEED TO BE CHANGED TO MATCH YOUR SETUP!!!
+#set the default email sender and recipient 
 email_sender = 'support.ai@giindia.com'
 email_recipient = 'support.ai@giindia.com'
+# detections_summary will be used to store the detections summary report
+detections_summary = ''
+
+classes_to_filter = None  #You can give list of classes to filter by name, Be happy you don't have to put class number. ['train','person' ]
+
+# a dictionary to store options for inference
+opt  = {
+    "weights": "best.pt", # Path to weights file default weights are for nano model
+    "yaml"   : "data/custom_data.yaml",
+    "img-size": 640, # default image size
+    "conf-thres": 0.25, # confidence threshold for inference.
+    "iou-thres" : 0.45, # NMS IoU threshold for inference.
+    "device" : 'cpu',  # device to run our model i.e. 0 or 0,1,2,3 or cpu
+    "classes" : classes_to_filter  # list of classes to filter or None
+}
 
 
-def violation_alert_generator(im0, subject='PPE Violation Detected at ABESIT', message_text='A PPE violation is detected at ABESIT'):
-    '''This function will send an email with attached alert image 
+def violation_alert_generator(im0, subject='PPE Violation Detected', message_text='A PPE violation is detected at ABESIT'):
+    '''This function will send an email with attached alert image and then wait for 10 minutes before sending another email
     
     Parameters:
-    im0 (numpy.ndarray): The image to be attached in the email
+      im0 (numpy.ndarray): The image to be attached in the email
+      subject (str): The subject of the email
+      message_text (str): The message text of the email
 
     Returns:
-    None
+      None
     '''
     global send_next_email, email_recipient
-    send_next_email = False
+    send_next_email = False #set flag to False so that another email is not sent
     print('Sending email alert to ', email_recipient)
     prepare_and_send_email(email_sender, email_recipient, subject, message_text, im0)
     # wait for 10 minutes before sending another email
@@ -49,12 +68,25 @@ def violation_alert_generator(im0, subject='PPE Violation Detected at ABESIT', m
     send_next_email = True
 
 
-detections_summary = ''
-
-
 def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleFill=False, scaleup=True, stride=32):
+    '''Resize and pad image while meeting stride-multiple constraints
+
+    Parameters:
+        img (numpy.ndarray): Image to be padded
+        new_shape (tuple): Desired output shape of (w, h) while meeting stride-multiple constraints
+        color (tuple): Color
+        auto (bool): Minimum rectangle
+        scaleFill (bool): Stretch
+        scaleup (bool): Scale up
+        stride (int): Stride
+    
+    Returns:
+        numpy.ndarray: Padded and resized image
+    '''
     # Resize and pad image while meeting stride-multiple constraints
     shape = img.shape[:2]  # current shape [height, width]
+
+    # if new_shape is a single integer e.g. 640, convert to (640, 640)
     if isinstance(new_shape, int):
         new_shape = (new_shape, new_shape)
 
@@ -84,28 +116,23 @@ def letterbox(img, new_shape=(640, 640), color=(114, 114, 114), auto=True, scale
     img = cv2.copyMakeBorder(img, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)  # add border
     return img, ratio, (dw, dh)
 
-classes_to_filter = None  #You can give list of classes to filter by name, Be happy you don't have to put class number. ['train','person' ]
-
-
-opt  = {
-    
-    "weights": "best.pt", # Path to weights file default weights are for nano model
-    "yaml"   : "data/custom_data.yaml",
-    "img-size": 640, # default image size
-    "conf-thres": 0.25, # confidence threshold for inference.
-    "iou-thres" : 0.45, # NMS IoU threshold for inference.
-    "device" : 'cpu',  # device to run our model i.e. 0 or 0,1,2,3 or cpu
-    "classes" : classes_to_filter  # list of classes to filter or None
-}
-
 
 def video_detection(conf_=0.25, frames_buffer=[]):
-  violation_frames = 0 # Number of frames with violation
-    
-  # Declare global variable is_email_allowed
+  '''This function will detect violations in a video file or a live stream 
+
+  Parameters:
+    conf_ (float): Confidence threshold for inference
+    frames_buffer (list): A list of frames to be processed
+
+  Returns:
+    None
+  '''    
+  # Declare global variables to be used in this function
   global send_next_email
   global is_email_allowed
   global email_recipient
+
+  violation_frames = 0 # Number of frames with violation
   
   import time
   #start_time = time.time()
