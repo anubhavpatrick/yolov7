@@ -196,9 +196,9 @@ def video_detection(conf_=0.25, frames_buffer=[]):
                 # create a thread for sending email
                 t = threading.Thread(target=violation_alert_generator, args=(img0,))
                 t.start()
-              elif unsafe == False:
-                # reset the number of violation_frames if current frame is safe
-                violation_frames = 0
+            elif unsafe == False:
+              # reset the number of violation_frames if current frame is safe
+              violation_frames = 0
 
             # Store the detections summary in a string
             #get current time in hh:mm:ss format
