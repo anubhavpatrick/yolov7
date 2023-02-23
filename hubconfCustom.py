@@ -35,6 +35,7 @@ detections_summary = ''
 
 classes_to_filter = None  #You can give list of classes to filter by name, Be happy you don't have to put class number. ['train','person' ]
 
+# ----------------VERY IMPORTANT - CONFIGURATION PARAMETERS----------------
 # a dictionary to store options for inference
 opt  = {
     "weights": "best.pt", # Path to weights file default weights are for nano model
@@ -140,8 +141,7 @@ def video_detection(conf_=0.25, frames_buffer=[]):
           # buffer is empty, nothing to do
           continue
 
-        # Resize and pad image while meeting stride-multiple constraints
-        img = letterbox(img0, imgsz, stride=stride)[0]
+        img = letterbox(img0, imgsz, stride=stride)[0] # resize and pad image
         img = img[:, :, ::-1].transpose(2, 0, 1)  # BGR to RGB
         img = np.ascontiguousarray(img) # convert to contiguous array
         img = torch.from_numpy(img).to(device) # place the image on the device (cpu or gpu)
@@ -207,7 +207,7 @@ def video_detection(conf_=0.25, frames_buffer=[]):
             detections_summary += f"\n {current_time}\n Total Detections: {total_detections}\n Detections per class: {s.split(maxsplit=1)[1]}\n###########\n"
             
             # Plot the bounding boxes on the frame
-            for *xyxy, conf, cls in reversed(det):
+            for *xyxy, conf, cls in det:
               label = f'{names[int(cls)]} {conf:.2f}'
               if label.startswith('safe'):
                 color = (0,255,0) #Green in BGR
