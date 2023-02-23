@@ -89,7 +89,7 @@ def generate_processed_frames(conf_= 0.25):
     #call the video_detection for violation detection which yields a list of processed frames
     yolo_output = video_detection(conf_, frames_buffer)
     #iterate through the list of processed frames
-    for detection_, _, _, _ in yolo_output:
+    for detection_, _ in yolo_output:
         #The function imencode compresses the image and stores it in the memory buffer 
         _,buffer=cv2.imencode('.jpg',detection_)
         #convert the buffer to bytes
