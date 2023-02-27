@@ -163,7 +163,7 @@
 
         </script>
         <!-- =============== HEADER =============== -->
-        <header class="header container" id="header">
+        <header class="header" id="header">
             <div class="title">
                 <h1>PPE Violation Detection</h1>
             </div>
@@ -171,71 +171,75 @@
         <!-- =============== MAIN =============== -->
         
             <!-- =============== VIDEOS =============== -->
-        
-            <div style="position: relative;">
-                <center>
-                <div style="width: 100%; position: absolute;">
-                    <div style="width: 50%; height: 100px; float: left;"> 
-                      <div>
-                          <img src="{{ url_for('video_raw') }}" width="600"  height="400"/>
-                      </div>
-                    </div>
-                    <div style="margin-left: 50%; height: 100px;"> 
-                      <div>
-                        <img src="{{ url_for('video_processed') }}" width="600"  height="400" />
-                      </div>
-                    </div>
+    
+            <div class="gallery_container">
+
+                <div class="gallery">
+                    <img src="{{ url_for('video_raw') }}" />
                 </div>
-            </center>
-            </section>
-            
+        
+                <div class="gallery">
+                    <!-- img src="{{ url_for('video_processed') }}" /> -->
+                    <img src="{{ url_for('video_processed') }}" />
+                </div>
+            </div>
+        
+        
             <!-- =============== OPERATIONS =============== -->
-            <div style="width: 100%; position: absolute; top: 350px;">
-            <main class="main container">
-            <section class="operations">
+            <div class="operations_wrapper">
                 <form id="myform" enctype="multipart/form-data" method="post">
-                    <div class="btn">
-                        <span class="upload__button">
-                            <div>
+                   
+                        <div class="upload__button">
                                 <input type="file" class="custom-file-input" name="video" id="video" value="video">
-                            </div>
-                            <button type="submit" class="btn-primary" name="video_upload_button" id="video_upload_button" onclick="upload_file()">Upload Video</button>
+                            <button type="submit" class="btn-primary" name="video_upload_button" id="video_upload_button" onclick="upload_file()">Upload Video
+                            </button>
                             <i class="ri-video-upload-fill button__icon"></i>
-                        </span>
-                        <span class="live__button">
-                            <button class="btn-primary" name="inference_video_button" id="inference_video_button" onclick="video_inference()">Inference on Video</button>
+                        </div>
+                        <div class="live__button">
+                            <button class="btn-primary" name="inference_video_button" id="inference_video_button" onclick="video_inference()">Inference on Video
+                            </button>
                             <i class="ri-movie-2-fill button__icon"></i>
-                        </span>
-                        <span class="inference__button">
-                            <input type="text" class="ip_address-input" name="ip_address_textbox" id="ip_address_textbox" placeholder="http://192.168.12.10:4747/video" value="http://192.168.12.10:4747/video">
-                            <button type="submit" class="btn-primary" name="live_inference_button" id="live_inference_button" onclick="live_inference()">Live Inference</button>
-                            <i class="ri-settings-4-fill button__icon"></i>
-                        </span>
-                        <span class="download__button">
-                            <button type="submit" class="btn-primary" name="download_button" id="download_button" onclick="download_file()">Download Report</button>
+                        </div>
+                        <div class="download__button">
+                            <button type="submit" class="btn-primary" name="download_button" id="download_button" onclick="download_file()">Download Report
+                            </button>
                             <i class="ri-file-download-fill button__icon"></i>
-                        </span>
-                    </div>
-                    <center>
-                    <span class="email__sending">
-                        <div class="send__email">
-                            <input type="email" placeholder="Enter Valid Mail" value="support.ai@giindia.com" name="alert_email_textbox" id="alert_email_textbox">
                         </div>
-                        <div class="toggle__content">
-                            <label class="toggle__label">
-                                <input type="checkbox" class="toggle__check" name="alert_email_checkbox" id='alert_email_checkbox' />
-                                <span class="email__label">Send Alert</span>
-                                <div class="toggle__rail">
-                                    <span class="toggle__circle"></span>
-                                    <span class="toggle__border"></span>
+                        
+                        <div class="upload__weight">
+                            <input type="file" id="file1" name="upload">
+                            <button type="submit" class="btn-primary" name="weight_upload_button" id="weight_upload_button" onclick="upload_file()">Upload Weights
+                            </button>
+                            <i class="ri-file-upload-fill button__icon"></i>
+                        </div>
+                        <div class="inference__button">
+                            <input type="text" class="ip_address-input" name="ip_address_textbox" id="ip_address_textbox" placeholder="http://192.168.12.10:4747/video" value="http://192.168.12.10:4747/video">
+                            <button type="submit" class="btn-primary" name="live_inference_button" id="live_inference_button" onclick="live_inference()">Live Inference
+                            </button>
+                            <i class="ri-settings-4-fill button__icon"></i>
+                        </div>
+                       
+                        <div class="email__sending">
+                            <div class="send__email">
+                                <input type="email" placeholder="Enter Valid Mail" value="support.ai@giindia.com" name="alert_email_textbox" id="alert_email_textbox">
+                            </div>
+                            <div class="toggle__content">
+                                <div class="toggle__content">
+                                    <label class="toggle__label">
+                                        <input type="checkbox" class="toggle__check" name="alert_email_checkbox" id='alert_email_checkbox' />
+                                        <span class="email__label">Send Alert</span>
+                                        <div class="toggle__rail">
+                                            <span class="toggle__circle"></span>
+                                            <span class="toggle__border"></span>
+                                        </div>
+                                    </label>
                                 </div>
-                            </label>
+                            </div>
                         </div>
-                    </span></center>
+                      
+                    
                 </form>
-            </section>
             </div>
             </div>
-        </main>
     </body>
 </html>
