@@ -1,8 +1,8 @@
 # syntax=docker/dockerfile:1
   
-FROM nvcr.io/nvidia/pytorch:22.11-py3
-#20.12-py3
-#FROM python:3.8-slim-buster
+#FROM nvcr.io/nvidia/pytorch:22.11-py3
+#20.12-py3 #for GLB
+FROM python:3.8-slim-buster
 
 #https://grigorkh.medium.com/fix-tzdata-hangs-docker-image-build-cdb52cc3360d
 ENV TZ=Asia/Kolkata
